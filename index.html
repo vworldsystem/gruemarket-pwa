@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GrueMarket - 그루의 모든 링크를 한곳에서 만나보세요!">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GrueMarket">
+    
+    <!-- PWA 매니페스트 -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- 아이폰 스플래시 이미지 -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%236366f1' width='180' height='180'/><text x='50%' y='50%' font-size='60' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='system-ui'>GM</text></svg>">
+    
+    <title>GrueMarket - 링크모음</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --accent: #ec4899;
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --success: #10b981;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--bg-secondary) 100%);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 40px;
+        }
+
+        /* 헤더 영역 */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 900;
+            color: white;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+            transform: rotate(-5deg);
+        }
+
+        .logo:hover {
+            transform: rotate(0deg) scale(1.05);
+            transition: transform 0.3s ease;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* 링크 그리드 */
+        .links-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .link-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 20px;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .link-card:hover {
+            transform: translateX(8px) translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--primary) 100%);
+        }
+
+        .link-card:hover::before {
+            left: 100%;
+        }
+
+        .link-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            flex-shrink: 0;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .link-card:nth-child(2) .link-icon {
+            background: var(--accent);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+        }
+
+        .link-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .link-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .link-url {
+            font-size: 12px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .link-arrow {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .link-card:hover .link-arrow {
+            transform: translateX(4px);
+        }
+
+        /* PWA 설치 버튼 */
+        .install-prompt {
+            display: none;
+            margin-bottom: 30px;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        .install-text {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .install-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .install-btn.primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .install-btn.primary:active {
+            transform: scale(0.95);
+        }
+
+        .install-btn.secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .install-btn.secondary:active {
+            transform: scale(0.95);
+        }
+
+        /* 설치 완료 메시지 */
+        .install-success {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 20px;
+            background: var(--success);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            animation: slideUp 0.4s ease-out;
+            z-index: 1000;
+        }
+
+        .install-success.show {
+            display: block;
+        }
+
+        /* 푸터 */
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            animation: fadeIn 0.8s ease-out 0.6s both;
+        }
+
+        .footer p {
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* 애니메이션 */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* 반응형 */
+        @media (max-width: 480px) {
+            .container {
+                margin-top: 30px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .link-card {
+                padding: 16px;
+            }
+
+            .link-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+
+            .link-title {
+                font-size: 15px;
+            }
+        }
+
+        /* 다크 모드 (기본값) */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                color-scheme: dark;
+            }
+        }
+
+        /* iOS 사파리 안전 영역 */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 설치 프롬프트 -->
+        <div class="install-prompt" id="installPrompt">
+            <div class="install-text">📱 GrueMarket을 앱처럼 설치하세요!</div>
+            <div class="install-buttons">
+                <button class="install-btn primary" id="installBtn">설치</button>
+                <button class="install-btn secondary" id="dismissBtn">나중에</button>
+            </div>
+        </div>
+
+        <!-- 헤더 -->
+        <div class="header">
+            <div class="logo">GM</div>
+            <h1>GrueMarket</h1>
+            <p>그루의 모든 링크를 한곳에서 ✨</p>
+        </div>
+
+        <!-- 링크 그리드 -->
+        <div class="links-grid">
+            <a href="https://link.inpock.co.kr/grumarket" class="link-card" target="_blank" rel="noopener noreferrer">
+                <div class="link-icon">🔗</div>
+                <div class="link-content">
+                    <div class="link-title">인포크 링크</div>
+                    <div class="link-url">link.inpock.co.kr/grumarket</div>
+                </div>
+                <div class="link-arrow">→</div>
+            </a>
+
+            <a href="https://beacons.ai/grewuni" class="link-card" target="_blank" rel="noopener noreferrer">
+                <div class="link-icon">✨</div>
+                <div class="link-content">
+                    <div class="link-title">비콘</div>
+                    <div class="link-url">beacons.ai/grewuni</div>
+                </div>
+                <div class="link-arrow">→</div>
+            </a>
+        </div>
+
+        <!-- 푸터 -->
+        <div class="footer">
+            <p>🚀 언제 어디서나 편하게 접근하세요</p>
+            <div class="status-badge" id="statusBadge">준비 중...</div>
+        </div>
+    </div>
+
+    <!-- 설치 성공 메시지 -->
+    <div class="install-success" id="installSuccess">
+        ✅ GrueMarket이 설치되었습니다!
+    </div>
+
+    <!-- Service Worker 등록 -->
+    <script>
+        // PWA 설치 기능
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installBtn = document.getElementById('installBtn');
+        const dismissBtn = document.getElementById('dismissBtn');
+        const installSuccess = document.getElementById('installSuccess');
+        const statusBadge = document.getElementById('statusBadge');
+
+        // beforeinstallprompt 이벤트 감지
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installPrompt.classList.add('show');
+            statusBadge.textContent = '✅ 설치 가능';
+            statusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+            statusBadge.style.color = 'var(--success)';
+        });
+
+        // 설치 버튼 클릭
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    installSuccess.classList.add('show');
+                    setTimeout(() => {
+                        installSuccess.classList.remove('show');
+                    }, 3000);
+                }
+                
+                installPrompt.classList.remove('show');
+                deferredPrompt = null;
+            }
+        });
+
+        // 나중에 버튼 클릭
+        dismissBtn.addEventListener('click', () => {
+            installPrompt.classList.remove('show');
+        });
+
+        // 앱 설치됨 감지
+        window.addEventListener('appinstalled', () => {
+            console.log('GrueMarket이 설치되었습니다!');
+            installSuccess.classList.add('show');
+            setTimeout(() => {
+                installSuccess.classList.remove('show');
+            }, 3000);
+        });
+
+        // Service Worker 등록
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then((registration) => {
+                    console.log('Service Worker 등록됨:', registration);
+                    statusBadge.textContent = '✅ 오프라인 지원';
+                })
+                .catch((error) => {
+                    console.log('Service Worker 등록 실패:', error);
+                });
+        }
+
+        // 링크 클릭 분석 (선택)
+        document.querySelectorAll('.link-card').forEach(link => {
+            link.addEventListener('click', () => {
+                // Google Analytics나 다른 분석 도구를 여기에 추가할 수 있습니다
+                console.log('링크 클릭:', link.querySelector('.link-title').textContent);
+            });
+        });
+    </script>
+</body>
+</html>
